@@ -4,6 +4,8 @@
 
 HoYoLab の戦績ツールから自動計算されます。
 
+![イメージ](/docs/images/sample.png)
+
 # 設定方法
 
 ### ダウンロード
