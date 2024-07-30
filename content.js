@@ -1,11 +1,6 @@
-// content.js
-
 (function () {
-    console.log('Content script loaded');
-
-    // equip-infoクラスを持つ要素を全て取得
-    const equipElements = document.querySelectorAll('.equip-info');
-    console.log('Found', equipElements.length, 'equip-info elements');
+    // 公式の戦績ツールからドライバアイコンのDOMを取得
+    const officialEquipElements = document.querySelectorAll('.equip-info');
 
     const oldPanel = document.getElementById('custom-equip-panel');
     if (oldPanel) {
@@ -30,11 +25,13 @@
     }
 
 
+    /** 埋め込む一番外側のDOM */
     const customPanel = document.createElement('div');
     customPanel.id = 'custom-equip-panel';
     customPanel.style.color = 'rgba(255,255,255,.35)';
     customPanel.style.padding = '1em';
 
+    /** ドライバ情報を表示するためのDOM */
     const customEquipPanel = document.createElement('div');
     customEquipPanel.style.display = 'flex';
     customEquipPanel.style.justifyContent = 'space-between';
@@ -48,10 +45,7 @@
     const calcScore = (name, value) => {
         const toNum = (str) => {
             const matches = str?.match(/^([0-9.]*)%?$/);
-            if (matches?.length) {
-                return Number(matches[1]);
-            }
-            return null;
+            return matches?.length ? Number(matches[1]) : 0;
         }
         switch (name) {
             case '会心率':
@@ -91,8 +85,8 @@
             scorePanel.style.color = 'rgba(255,255,255,.9)'
             scorePanel.style.fontSize = '16px';
             scorePanel.innerText = `score: ${totalScore}`;
+            // スコア表示を追加
             customPanel.appendChild(scorePanel);
-
             // ドライバ詳細を追加
             customPanel.appendChild(customEquipPanel);
 
@@ -107,14 +101,10 @@
     }
 
     const dequeue = async () => {
-        if (!queue.length) {
-            finish();
-            return;
-        }
+        if (!queue.length) return finish();
 
         // ドライバを1つずつクリックして詳細モーダルを表示させる
-        const element = queue.shift();
-        element.click();
+        queue.shift().click();
 
         // モーダルに表示された情報を取得していく
         const modal = await getElementByClassNameAsync('van-popup');
@@ -123,7 +113,6 @@
             modal.style.opacity = '0';
 
             const equipDetail = document.createElement('div');
-            // equipDetail.style.border = '1px solid lightgray';
             equipDetail.style.backgroundColor = '#242424';
             equipDetail.style.borderRadius = '16px';
             equipDetail.style.width = 'calc(33% - 0.5em)';
@@ -135,8 +124,15 @@
             // 名称やレベル、ドライバ画像等の基本情報   
             const content = modal.getElementsByClassName('popup-content')?.item(0);
             if (content) {
+                // 名前や画像、レベルのところはクローンしてそのまま使う
                 const baseInfo = content.getElementsByTagName('div')?.item(0)?.cloneNode(true);
                 if (baseInfo) {
+                    const driverName = baseInfo.getElementsByTagName('p')?.item(0);
+                    if (driverName) {
+                        driverName.style.height = 'unset';
+                    }
+
+
                     // 公式のCSSを聞かせるために「popup-content」クラスを付けたdivでラッピングする
                     const wrapper = document.createElement('div');
                     wrapper.className = 'role-detail-popup equip-popup';
@@ -190,6 +186,6 @@
 
 
     // 処理実行
-    equipElements.forEach(e => queue.push(e))
+    officialEquipElements.forEach(e => queue.push(e))
     dequeue();
 })()
