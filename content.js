@@ -123,9 +123,12 @@
             modal.style.opacity = '0';
 
             const equipDetail = document.createElement('div');
-            equipDetail.style.border = '1px solid lightgray';
-            equipDetail.style.width = '33%';
-            equipDetail.style.padding = '0.5em';
+            // equipDetail.style.border = '1px solid lightgray';
+            equipDetail.style.backgroundColor = '#242424';
+            equipDetail.style.borderRadius = '16px';
+            equipDetail.style.width = 'calc(33% - 0.5em)';
+            equipDetail.style.padding = '12px 24px';
+            equipDetail.style.margin = '0.25em';
             customEquipPanel.appendChild(equipDetail);
 
 
