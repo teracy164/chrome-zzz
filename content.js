@@ -55,12 +55,21 @@
         }
         switch (name) {
             case '会心率':
+            case 'CRIT Rate':
+            case '暴击率':
+            case '暴擊率':
                 totalScore += toNum(value) * 2;
                 break;
             case '会心ダメージ':
+            case 'CRIT DMG':
+            case '暴击伤害':
+            case '暴擊傷害':
                 totalScore += toNum(value);
                 break;
             case '攻撃力':
+            case 'ATK':
+            case '攻击力':
+            case '攻擊力':
                 if (value.endsWith('%')) {
                     // 攻撃力は実数もあるため、％の場合のみ加算
                     totalScore += toNum(value);
