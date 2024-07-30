@@ -1,12 +1,14 @@
 (function () {
     // 公式の戦績ツールからドライバアイコンのDOMを取得
     const officialEquipElements = document.querySelectorAll('.equip-info');
+    if (!officialEquipElements.length) return;
 
     const oldPanel = document.getElementById('custom-equip-panel');
     if (oldPanel) {
         oldPanel.remove();
     }
 
+    /** DOM取得（描画されるまで待つ） */
     const getElementByClassNameAsync = (className) => {
         return new Promise(resolve => {
             const wait = (cnt = 0) => {
@@ -24,7 +26,6 @@
         })
     }
 
-
     /** 埋め込む一番外側のDOM */
     const customPanel = document.createElement('div');
     customPanel.id = 'custom-equip-panel';
@@ -36,7 +37,6 @@
     customEquipPanel.style.display = 'flex';
     customEquipPanel.style.justifyContent = 'space-between';
     customEquipPanel.style.flexWrap = 'wrap';
-
 
     /** @type HTMLElement[] */
     const queue = [];
@@ -185,7 +185,7 @@
     }
 
 
-    // 処理実行
+    // 順番に処理するためキューイングして1つずつ処理を実施
     officialEquipElements.forEach(e => queue.push(e))
     dequeue();
 })()
