@@ -90,7 +90,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 scorePanel.style.fontFamily = 'inpin hongmengti';
                 scorePanel.style.color = 'rgba(255,255,255,.9)'
                 scorePanel.style.fontSize = '16px';
-                scorePanel.innerText = `Total Score  ${totalScore}`;
+                scorePanel.innerHTML = `<span>Score</span><span style="margin-left: 1em">${totalScore}</span>`;
                 // スコア表示を追加
                 customPanel.appendChild(scorePanel);
             }
