@@ -1,4 +1,5 @@
-(function () {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+
     // 公式の戦績ツールからドライバアイコンのDOMを取得
     const officialEquipElements = document.querySelectorAll('.equip-info');
     if (!officialEquipElements.length) return;
@@ -79,14 +80,16 @@
         // 公式の装備の枠に詳細情報を埋め込む
         const officialEquipPanel = document.getElementsByClassName('equipment-info')?.item(0);
         if (officialEquipPanel) {
-            // スコア表示
-            const scorePanel = document.createElement('div');
-            scorePanel.style.fontFamily = 'inpin hongmengti';
-            scorePanel.style.color = 'rgba(255,255,255,.9)'
-            scorePanel.style.fontSize = '16px';
-            scorePanel.innerText = `score: ${totalScore}`;
-            // スコア表示を追加
-            customPanel.appendChild(scorePanel);
+            if (message.showScore) {
+                // スコア表示
+                const scorePanel = document.createElement('div');
+                scorePanel.style.fontFamily = 'inpin hongmengti';
+                scorePanel.style.color = 'rgba(255,255,255,.9)'
+                scorePanel.style.fontSize = '16px';
+                scorePanel.innerText = `score: ${totalScore}`;
+                // スコア表示を追加
+                customPanel.appendChild(scorePanel);
+            }
             // ドライバ詳細を追加
             customPanel.appendChild(customEquipPanel);
 
@@ -188,4 +191,11 @@
     // 順番に処理するためキューイングして1つずつ処理を実施
     officialEquipElements.forEach(e => queue.push(e))
     dequeue();
-})()
+
+
+    console.log('on message', message)
+    if (message.greeting) {
+        console.log('Message received from popup:', message.greeting);
+        sendResponse({ response: 'Hello from content script!' });
+    }
+});
