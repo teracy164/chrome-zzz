@@ -44,6 +44,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     let totalScore = 0;
 
     const calcScore = (name, value) => {
+        let score = 0
         const toNum = (str) => {
             const matches = str?.match(/^([0-9.]*)%?$/);
             return matches?.length ? Number(matches[1]) : 0;
@@ -53,13 +54,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             case 'CRIT Rate':
             case '暴击率':
             case '暴擊率':
-                totalScore += toNum(value) * 2;
+                score = toNum(value) * 2;
                 break;
             case '会心ダメージ':
             case 'CRIT DMG':
             case '暴击伤害':
             case '暴擊傷害':
-                totalScore += toNum(value);
+                score = toNum(value);
                 break;
             case '攻撃力':
             case 'ATK':
@@ -67,13 +68,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             case '攻擊力':
                 if (value.endsWith('%')) {
                     // 攻撃力は実数もあるため、％の場合のみ加算
-                    totalScore += toNum(value);
+                    score = toNum(value);
                 }
                 break;
         }
 
-        // まるめ誤差対策
-        totalScore = Math.floor(totalScore * 10) / 10;
+        return score;
     }
 
     const finish = () => {
@@ -103,6 +103,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         document.getElementsByClassName('van-overlay')?.item(0)?.click();
     }
 
+    /** まるめ誤差対策 */
+    const addScore = (sum, score) => {
+        return Math.floor((sum + score) * 10) / 10;
+    }
+
     const dequeue = async () => {
         if (!queue.length) return finish();
 
@@ -117,6 +122,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             const equipDetail = document.createElement('div');
             equipDetail.style.backgroundColor = '#242424';
+            equipDetail.style.boxShadow = '-1px -1px 1.1px 0px rgba(255,255,255,.1),0px 4px 4px 0px rgba(0,0,0,.1) inset';
             equipDetail.style.borderRadius = '16px';
             equipDetail.style.width = 'calc(33% - 0.5em)';
             equipDetail.style.padding = '12px 24px';
@@ -155,6 +161,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 const statusPanel = document.createElement('div');
                 statusPanel.style.padding = '0.5em';
 
+                let equipScore = 0;
                 const spans = sts.getElementsByTagName('span');
                 for (let i = 0; i < spans.length; i++) {
                     const name = spans.item(i++)?.innerText;
@@ -174,12 +181,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
                         statusPanel.appendChild(e);
 
-                        calcScore(name, value);
+                        equipScore = addScore(equipScore, calcScore(name, value));
                     }
+                }
+
+                if (message.showScore) {
+                    const e = document.createElement('div');
+                    e.style.display = 'flex';
+                    e.style.justifyContent = 'space-between';
+                    e.style.fontFamily = '"inpin hongmengti"';
+                    e.style.color = 'rgba(255, 255, 255, 0.9)';
+                    e.style.fontSize = '16px';
+
+                    const elName = document.createElement('div')
+                    elName.innerText = 'Score';
+                    e.appendChild(elName);
+
+                    const elValue = document.createElement('div')
+                    elValue.innerText = equipScore;
+                    e.appendChild(elValue);
+
+                    statusPanel.appendChild(document.createElement('hr'));
+                    statusPanel.appendChild(e);
                 }
 
                 equipDetail.appendChild(statusPanel);
                 customEquipPanel.appendChild(equipDetail)
+
+                totalScore = addScore(totalScore, equipScore);
             }
             modal.style.opacity = 'unset';
         }
@@ -187,15 +216,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         dequeue();
     }
 
-
     // 順番に処理するためキューイングして1つずつ処理を実施
     officialEquipElements.forEach(e => queue.push(e))
     dequeue();
 
-
-    console.log('on message', message)
-    if (message.greeting) {
-        console.log('Message received from popup:', message.greeting);
-        sendResponse({ response: 'Hello from content script!' });
-    }
+    sendResponse({ result: true });
 });
