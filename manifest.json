@@ -8,9 +8,7 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://act.hoyolab.com/app/mihoyo-zzz-game-record/index.html*"
-      ],
+      "matches": ["https://act.hoyolab.com/app/mihoyo-zzz-game-record/*.html*"],
       "js": ["content.js"]
     }
   ],

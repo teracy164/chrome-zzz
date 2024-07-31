@@ -9,6 +9,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         oldPanel.remove();
     }
 
+    // モバイルの場合はhtml事態が違うようなので、パスで判断する
+    const isMobile = location.pathname.endsWith('m.html');
+
     /** DOM取得（描画されるまで待つ） */
     const getElementByClassNameAsync = (className) => {
         return new Promise(resolve => {
@@ -31,7 +34,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const customPanel = document.createElement('div');
     customPanel.id = 'custom-equip-panel';
     customPanel.style.color = 'rgba(255,255,255,.35)';
-    customPanel.style.padding = '1em';
+
+    customPanel.style.padding = isMobile ? '1em 0' : '1em';
 
     /** ドライバ情報を表示するためのDOM */
     const customEquipPanel = document.createElement('div');
@@ -124,7 +128,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             equipDetail.style.backgroundColor = '#242424';
             equipDetail.style.boxShadow = '-1px -1px 1.1px 0px rgba(255,255,255,.1),0px 4px 4px 0px rgba(0,0,0,.1) inset';
             equipDetail.style.borderRadius = '16px';
-            equipDetail.style.width = 'calc(33% - 0.5em)';
+            equipDetail.style.width = `calc(${isMobile ? '100%' : '33%'} - 0.5em)`;
             equipDetail.style.padding = '12px 24px';
             equipDetail.style.margin = '0.25em';
             customEquipPanel.appendChild(equipDetail);
