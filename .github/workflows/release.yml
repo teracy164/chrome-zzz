@@ -1,0 +1,56 @@
+name: Release Chrome Extension
+
+on:
+  push:
+    branches:
+      - release # mainブランチにpushされたときに実行されます
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Update manifest version
+        run: |
+          node -e "let manifest = require('./manifest.json'); manifest.version = manifest.version.split('.').map((v, i, a) => i === a.length - 1 ? ++v : v).join('.'); require('fs').writeFileSync('./manifest.json', JSON.stringify(manifest, null, 2));"
+
+      - name: Commit manifest version update
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "Bump version in manifest.json"
+
+      - name: Create Git tag
+        id: vars
+        run: |
+          VERSION=$(cat manifest.json | jq -r '.version')
+          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Tag version
+        run: |
+          git tag -a v${{ steps.vars.outputs.VERSION }} -m "Release version ${{ steps.vars.outputs.VERSION }}"
+          git push origin --tags
+
+      # - name: Zip extension
+      #   run: zip -r extension.zip *
+
+      # - name: Publish to Chrome Web Store
+      #   uses: GoogleChrome/webstore-upload-cli@v2
+      #   with:
+      #     client_id: ${{ secrets.WEBSTORE_CLIENT_ID }}
+      #     client_secret: ${{ secrets.WEBSTORE_CLIENT_SECRET }}
+      #     refresh_token: ${{ secrets.WEBSTORE_REFRESH_TOKEN }}
+      #     extension_id: ${{ secrets.EXTENSION_ID }}
+      #     zip_file: extension.zip
