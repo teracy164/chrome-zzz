@@ -1,12 +1,32 @@
 # ZZZ Score Calculator
 
-ゼンレスゾーンゼロ向けのスコア計算ツールです。
+ゼンレスゾーンゼロ向けのスコア計算ツールです。  
+HoYoLab の戦績ツールで実行し、ドライバの詳細情報やスコア計算が画面上に埋め込まれます。
 
-HoYoLab の戦績ツールから自動計算されます。
+# インストール方法
 
-![イメージ](/docs/images/sample.png)
+Chrome ウェブストアよりインストールしてください
 
-# 設定方法
+https://chromewebstore.google.com/detail/zzz-score-calculator/ibbbkbnhocldehlkbemmlgkmdlbckjmn
+
+※リリース前の機能を利用したい場合は、README 下部の「[リリース前の β 版を使いたい場合](#chromeウェブストアリリース前の機能を使いたい場合)」を参照
+
+# 使い方
+
+1. HoYoLab 公式の[ゼンレスゾーンゼロ戦績ツール](https://act.hoyolab.com/app/mihoyo-zzz-game-record/index.html)を開き、スコアを計算したいキャラクターを選択します
+
+![キャラクターを選択](/docs/images/select-character.jpg)
+
+2. 当拡張機能を起動します
+3. 「calcurate」ボタンを押下します
+
+![拡張機能を実行](/docs/images/run.jpg)
+
+4. 装備欄の下にドライバの詳細とスコアが表示されます
+
+![表示](/docs/images/result.jpg)
+
+# Chrome ウェブストアリリース前の機能を使いたい場合
 
 ### ダウンロード
 
@@ -26,16 +46,3 @@ HoYoLab の戦績ツールから自動計算されます。
 3．解凍したフォルダを選択します
 
 ![フォルダを選択](/docs/images/help3.jpg)
-
-### HoYoLab のゼンレスゾーンゼロ戦績ツール上で実行
-
-1. HoYoLab からゼンレスゾーンゼロの戦績ツールを開きます
-2. キャラクターを選択し、詳細画面を開きます
-3. 拡張機能から当ツールを起動します
-4. 「calculate」ボタンを押下します
-
-![拡張機能](/docs/images/help4.jpg)
-
-装備欄の下にドライバの詳細とスコアが表示されます。
-
-なお、スコアは「会心率 ｘ ２ ＋ 会心ダメージ ＋ 攻撃力％」で計算しています
