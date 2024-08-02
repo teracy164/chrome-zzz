@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // モバイルの場合はhtml事態が違うようなので、パスで判断する
     const isMobile = location.pathname.endsWith('m.html');
 
-    /** DOM取得（描画されるまで待つ） */
+    /** DOM取得（描画されるまで待つ） @return {HTMLElement} */
     const getElementByClassNameAsync = (className) => {
         return new Promise(resolve => {
             const wait = (cnt = 0) => {
@@ -120,102 +120,122 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // モーダルに表示された情報を取得していく
         const modal = await getElementByClassNameAsync('van-popup');
-        if (modal) {
-            // ちらつかないようにモーダルは透明にしておく
-            modal.style.opacity = '0';
+        if (!modal) return;
+        // ちらつかないようにモーダルは透明にしておく
+        modal.style.opacity = '0';
 
-            const equipDetail = document.createElement('div');
-            equipDetail.style.backgroundColor = '#242424';
-            equipDetail.style.boxShadow = '-1px -1px 1.1px 0px rgba(255,255,255,.1),0px 4px 4px 0px rgba(0,0,0,.1) inset';
-            equipDetail.style.borderRadius = '16px';
-            equipDetail.style.width = `calc(${isMobile ? '100%' : '33%'} - 0.5em)`;
-            equipDetail.style.padding = '12px 24px';
-            equipDetail.style.margin = '0.25em';
-            customEquipPanel.appendChild(equipDetail);
-
-
-            // 名称やレベル、ドライバ画像等の基本情報   
-            const content = modal.getElementsByClassName('popup-content')?.item(0);
-            if (content) {
-                // 名前や画像、レベルのところはクローンしてそのまま使う
-                const baseInfo = content.getElementsByTagName('div')?.item(0)?.cloneNode(true);
-                if (baseInfo) {
-                    const driverName = baseInfo.getElementsByTagName('p')?.item(0);
-                    if (driverName) {
-                        driverName.style.height = 'unset';
-                    }
+        const equipDetail = document.createElement('div');
+        equipDetail.style.backgroundColor = '#242424';
+        equipDetail.style.boxShadow = '-1px -1px 1.1px 0px rgba(255,255,255,.1),0px 4px 4px 0px rgba(0,0,0,.1) inset';
+        equipDetail.style.borderRadius = '16px';
+        equipDetail.style.width = `calc(${isMobile ? '100%' : '33%'} - 0.5em)`;
+        equipDetail.style.padding = '12px 24px';
+        equipDetail.style.margin = '0.25em';
+        customEquipPanel.appendChild(equipDetail);
 
 
-                    // 公式のCSSを聞かせるために「popup-content」クラスを付けたdivでラッピングする
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'role-detail-popup equip-popup';
-
-                    const wrapper2 = document.createElement('div');
-                    wrapper2.className = 'popup-content';
-
-                    wrapper2.appendChild(baseInfo);
-                    wrapper.appendChild(wrapper2);
-                    equipDetail.appendChild(wrapper)
+        // 名称やレベル、ドライバ画像等の基本情報   
+        const content = modal.getElementsByClassName('popup-content')?.item(0);
+        if (content) {
+            // 名前や画像、レベルのところはクローンしてそのまま使う
+            const baseInfo = content.getElementsByTagName('div')?.item(0)?.cloneNode(true);
+            if (baseInfo) {
+                const driverName = baseInfo.getElementsByTagName('p')?.item(0);
+                if (driverName) {
+                    driverName.style.height = 'unset';
                 }
+
+
+                // 公式のCSSを効かせるために「popup-content」クラスを付けたdivでラッピングする
+                const wrapper = document.createElement('div');
+                wrapper.className = 'role-detail-popup equip-popup';
+
+                const wrapper2 = document.createElement('div');
+                wrapper2.className = 'popup-content';
+
+                wrapper2.appendChild(baseInfo);
+                wrapper.appendChild(wrapper2);
+                equipDetail.appendChild(wrapper)
             }
+        }
 
-            // ランダムステータスのDOMを取得
-            const sts = modal.getElementsByClassName('upper-attrs')?.item(0);
-            if (sts) {
-                const statusPanel = document.createElement('div');
-                statusPanel.style.padding = '0.5em';
+        /** ステータス行DOM生成 @return {HTMLElement} */
+        const createStatusRowElement = (name, value) => {
+            const e = document.createElement('div');
+            e.style.display = 'flex';
+            e.style.justifyContent = 'space-between';
 
-                let equipScore = 0;
-                const spans = sts.getElementsByTagName('span');
-                for (let i = 0; i < spans.length; i++) {
-                    const name = spans.item(i++)?.innerText;
-                    const value = spans.item(i).innerText;
-                    if (name && value) {
-                        const e = document.createElement('div');
-                        e.style.display = 'flex';
-                        e.style.justifyContent = 'space-between';
+            const elName = document.createElement('div')
+            elName.innerText = name;
+            e.appendChild(elName);
 
-                        const elName = document.createElement('div')
-                        elName.innerText = name;
-                        e.appendChild(elName);
+            const elValue = document.createElement('div')
+            elValue.innerText = value;
+            e.appendChild(elValue);
 
-                        const elValue = document.createElement('div')
-                        elValue.innerText = value;
-                        e.appendChild(elValue);
+            return e;
+        }
 
-                        statusPanel.appendChild(e);
+        const statusPanel = document.createElement('div');
+        statusPanel.style.padding = '0.5em';
 
-                        equipScore = addScore(equipScore, calcScore(name, value));
-                    }
-                }
-
-                if (message.showScore) {
-                    const e = document.createElement('div');
-                    e.style.display = 'flex';
-                    e.style.justifyContent = 'space-between';
-                    e.style.fontFamily = '"inpin hongmengti"';
+        // メインステータスのDOMを取得
+        const mainSts = modal.getElementsByClassName('base-attrs')?.item(0);
+        if (mainSts) {
+            const spans = mainSts.getElementsByTagName('span');
+            if (spans.length) {
+                const name = spans.item(0)?.innerText;
+                const value = spans.item(1)?.innerText;
+                if (name && value) {
+                    const e = createStatusRowElement(name, value);
                     e.style.color = 'rgba(255, 255, 255, 0.9)';
-                    e.style.fontSize = '16px';
-
-                    const elName = document.createElement('div')
-                    elName.innerText = 'Score';
-                    e.appendChild(elName);
-
-                    const elValue = document.createElement('div')
-                    elValue.innerText = equipScore;
-                    e.appendChild(elValue);
-
-                    statusPanel.appendChild(document.createElement('hr'));
+                    e.style.borderBottom = '1px solid #333';
                     statusPanel.appendChild(e);
                 }
-
-                equipDetail.appendChild(statusPanel);
-                customEquipPanel.appendChild(equipDetail)
-
-                totalScore = addScore(totalScore, equipScore);
             }
-            modal.style.opacity = 'unset';
         }
+
+        // ランダムステータスのDOMを取得
+        const subSts = modal.getElementsByClassName('upper-attrs')?.item(0);
+        if (subSts) {
+            let equipScore = 0;
+            const spans = subSts.getElementsByTagName('span');
+            for (let i = 0; i < spans.length; i++) {
+                const name = spans.item(i++)?.innerText;
+                const value = spans.item(i).innerText;
+                if (name && value) {
+                    statusPanel.appendChild(createStatusRowElement(name, value));
+
+                    equipScore = addScore(equipScore, calcScore(name, value));
+                }
+            }
+
+            if (message.showScore) {
+                const e = document.createElement('div');
+                e.style.display = 'flex';
+                e.style.justifyContent = 'space-between';
+                e.style.fontFamily = '"inpin hongmengti"';
+                e.style.color = 'rgba(255, 255, 255, 0.9)';
+                e.style.fontSize = '16px';
+
+                const elName = document.createElement('div')
+                elName.innerText = 'Score';
+                e.appendChild(elName);
+
+                const elValue = document.createElement('div')
+                elValue.innerText = equipScore;
+                e.appendChild(elValue);
+
+                statusPanel.appendChild(document.createElement('hr'));
+                statusPanel.appendChild(e);
+            }
+
+            totalScore = addScore(totalScore, equipScore);
+        }
+        equipDetail.appendChild(statusPanel);
+        customEquipPanel.appendChild(equipDetail)
+
+        modal.style.opacity = 'unset';
 
         dequeue();
     }
