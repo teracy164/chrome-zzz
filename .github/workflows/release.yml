@@ -31,6 +31,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add manifest.json
           git commit -m "Bump version in manifest.json"
+          # releaseブランチに反映
+          git push origin release
 
       - name: Create Git tag
         id: vars
