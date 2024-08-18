@@ -55,21 +55,41 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         switch (name) {
             case '会心率':
-            case 'CRIT Rate':
+            case 'CRIT Rate': // EN ID TH
             case '暴击率':
             case '暴擊率':
+            case 'Шанс крит. попадания':
+            case '치명타 확률':
+            case 'KRIT-Rate': // DE
+            case 'Probabilidad de Crítico': //ES
+            case 'Taux CRIT'://FR
+            case 'Taxa CRIT': //PT
+            case 'Tỷ Lệ Bạo Kích': // VN
                 score = toNum(value) * 2;
                 break;
             case '会心ダメージ':
-            case 'CRIT DMG':
+            case 'CRIT DMG': // EN ID TH
             case '暴击伤害':
             case '暴擊傷害':
+            case 'Крит. урон':
+            case '치명타 피해':
+            case 'KRIT-SCH': // DE
+            case 'Daño Crítico'://ES
+            case 'DGT CRIT': //FR
+            case 'Dano CRIT': //PT
+            case 'DMG Bạo Kích': //VN
                 score = toNum(value);
                 break;
             case '攻撃力':
-            case 'ATK':
+            case 'ATK': // EN ID TH
             case '攻击力':
             case '攻擊力':
+            case 'Сила атаки':
+            case '공격력':
+            case 'ANG':// DE
+            case 'Ataque'://ES
+            case 'ATQ'://FR PT
+            case 'Tấn Công': //VN
                 if (value.endsWith('%')) {
                     // 攻撃力は実数もあるため、％の場合のみ加算
                     score = toNum(value);
