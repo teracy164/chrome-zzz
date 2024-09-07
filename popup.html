@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div style="width: 15em">
+    <div style="width: 30em;">
         <label>ZZZ Score Calculator</label>
         <p>
             HoYoLabのゼンレスゾーンゼロ戦績ツールからキャラ詳細を開き<br>
@@ -17,6 +17,13 @@
         <div style="margin-bottom: 1em">
             <input type="checkbox" id="switch-score" checked>
             <label for="switch-score">スコアを表示</label>
+        </div>
+        <div style="margin-bottom: 1em">
+            <select id="select-calc-type">
+                <option value="attack" selected>攻撃力換算</option>
+                <option value="anomaly">異常マスタリー換算</option>
+            </select>
+            <div id="calc-type-description"></div>
         </div>
         <button id="start">calculate</button>
     </div>
