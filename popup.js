@@ -25,12 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
         /** @type HTMLInputElement */
-        const elSwitch = document.getElementById('switch-score');
-        const showScore = elSwitch.checked;
+        const elSwitchScore = document.getElementById('switch-score');
+        const showScore = elSwitchScore.checked;
+        /** @type HTMLInputElement */
+        const elSwitchEvaluation = document.getElementById('switch-evaluation');
+        const showEvaluation = elSwitchEvaluation.checked;
 
         const calcType = elCalcType.value;
 
-        chrome.tabs.sendMessage(tabs[0].id, { showScore, calcType }, (response) => {
+        chrome.tabs.sendMessage(tabs[0].id, { showScore, showEvaluation, calcType }, (response) => {
           console.log('Response from content script:', response);
         });
       }

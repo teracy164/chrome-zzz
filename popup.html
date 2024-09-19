@@ -19,9 +19,18 @@
             <label for="switch-score">スコアを表示</label>
         </div>
         <div style="margin-bottom: 1em">
+            <input type="checkbox" id="switch-evaluation" checked>
+            <label for="switch-evaluation">ドライバを評価する</label>
+            <div>
+                閾値：SS>=30, S>=25, A>=20, B>=15, 15>C
+                <br>
+                ※トータルスコアの評価は全ドライバの平均値で判定
+            </div>
+        </div>
+        <div style="margin-bottom: 1em">
             <select id="select-calc-type">
-                <option value="attack" selected>攻撃力換算</option>
-                <option value="anomaly">異常マスタリー換算</option>
+                <option value="attack" selected>攻撃力換算（アタッカー向け）</option>
+                <option value="anomaly">異常マスタリー換算（異常キャラ向け）</option>
             </select>
             <div id="calc-type-description"></div>
         </div>
