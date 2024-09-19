@@ -1,6 +1,10 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   /** @type {'attack' | 'anomaly'} */
   const calcType = message.calcType;
+  /** @type {boolean} */
+  const showScore = message.showScore;
+  /** @type {boolean} */
+  const showEvaluation = message.showEvaluation;
 
   // 公式の戦績ツールからドライバアイコンのDOMを取得
   const officialEquipElements = document.querySelectorAll('.equip-info');
@@ -121,17 +125,61 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return score;
   };
 
+  const evaluate = (score) => {
+    if (score >= 30) {
+      return 'SS';
+    } else if (score >= 25) {
+      return 'S';
+    } else if (score >= 20) {
+      return 'A';
+    } else if (score >= 15) {
+      return 'B';
+    } else {
+      return 'C';
+    }
+  };
+
+  const getEvaluationSpan = (score) => {
+    const evaluation = evaluate(score);
+    const styles = [
+      'margin: 0 0.25em',
+      'border: 2px solid white',
+      'border-radius: 50%',
+      'width: 1.5em',
+      'height: 1.5em',
+      'padding: 0 0.25em',
+    ];
+    const colors = {
+      SS: 'yellow',
+      S: 'yellow',
+      A: 'crimson',
+      B: 'skyblue',
+      C: 'white',
+    };
+    styles.push(`color: ${colors[evaluation]}`);
+    styles.push(`border-color: ${colors[evaluation]}`);
+    return `<span style="${styles.join(';')}">${evaluation}</span>`;
+  };
+
   const finish = () => {
     // 公式の装備の枠に詳細情報を埋め込む
     const officialEquipPanel = document.getElementsByClassName('equipment-info')?.item(0);
     if (officialEquipPanel) {
-      if (message.showScore) {
+      if (showScore) {
         // スコア表示
         const scorePanel = document.createElement('div');
         scorePanel.style.fontFamily = 'inpin hongmengti';
         scorePanel.style.color = 'rgba(255,255,255,.9)';
         scorePanel.style.fontSize = '16px';
-        scorePanel.innerHTML = `<span>Score</span><span style="margin-left: 1em">${totalScore}</span>`;
+
+        if (showEvaluation) {
+          // ドライバの平均値で評価
+          const avScore = Math.floor(totalScore / 6);
+          const evaluation = getEvaluationSpan(avScore);
+          scorePanel.innerHTML = `<span>Score</span><span style="margin-left: 1em">${totalScore}${evaluation}</span>`;
+        } else {
+          scorePanel.innerHTML = `<span>Score</span><span style="margin-left: 1em">${totalScore}</span>`;
+        }
         // スコア表示を追加
         customPanel.appendChild(scorePanel);
       }
@@ -249,7 +297,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       }
 
-      if (message.showScore) {
+      if (showScore) {
         const e = document.createElement('div');
         e.style.display = 'flex';
         e.style.justifyContent = 'space-between';
@@ -262,7 +310,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         e.appendChild(elName);
 
         const elValue = document.createElement('div');
-        elValue.innerText = equipScore;
+        if (showEvaluation) {
+          // 評価を表示
+          const evaluation = getEvaluationSpan(equipScore);
+          const elEvaluation = document.createElement('span');
+          elEvaluation.innerHTML = evaluation;
+          elValue.innerHTML = `${equipScore}${evaluation}`;
+        } else {
+          elValue.innerText = equipScore;
+        }
         e.appendChild(elValue);
 
         statusPanel.appendChild(document.createElement('hr'));
