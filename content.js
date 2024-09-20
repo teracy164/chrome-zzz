@@ -139,26 +139,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   };
 
-  const getEvaluationSpan = (score) => {
-    const evaluation = evaluate(score);
-    const styles = [
-      'margin: 0 0.25em',
-      'border: 2px solid white',
-      'border-radius: 50%',
-      'width: 1.5em',
-      'height: 1.5em',
-      'padding: 0 0.25em',
-    ];
-    const colors = {
-      SS: 'yellow',
-      S: 'yellow',
-      A: 'crimson',
-      B: 'skyblue',
-      C: 'white',
-    };
-    styles.push(`color: ${colors[evaluation]}`);
-    styles.push(`border-color: ${colors[evaluation]}`);
-    return `<span style="${styles.join(';')}">${evaluation}</span>`;
+  const evaluationColors = {
+    SS: 'yellow',
+    S: 'yellow',
+    A: 'crimson',
+    B: 'skyblue',
+    C: 'white',
+  };
+
+  const createEvaluationNode = (evaluation) => {
+    // 文字列＋borderだと画像で出力した際に表示崩れするため、画像として埋め込めるようにDOM生成
+
+    // SVGの名前空間を定義
+    const svgNS = 'http://www.w3.org/2000/svg';
+
+    // SVG要素を作成
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '20'); // 幅を24pxに設定
+    svg.setAttribute('height', '20'); // 高さを24pxに設定
+    svg.setAttribute('viewBox', '0 0 20 20'); // 24x24のビュー領域
+
+    // 円の要素を作成
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', '10'); // 円の中心X座標
+    circle.setAttribute('cy', '10'); // 円の中心Y座標
+    circle.setAttribute('r', '8'); // 半径9px（直径18px）
+    circle.setAttribute('fill', 'none'); // 内側を透明に
+    circle.setAttribute('stroke', evaluationColors[evaluation]); // 輪郭を青色に
+    circle.setAttribute('stroke-width', '2'); // 輪郭の幅を2pxに設定
+
+    // テキストの要素を作成
+    const text = document.createElementNS(svgNS, 'text');
+    text.setAttribute('x', '9.5');
+    text.setAttribute('y', evaluation === 'SS' ? '14' : '15'); // Y座標は少し下に調整
+    text.setAttribute('text-anchor', 'middle'); // テキストを中央揃え
+    text.setAttribute('font-size', evaluation === 'SS' ? '9' : '14'); // フォントサイズを12pxに設定
+    text.setAttribute('font-family', 'inpin hongmengti');
+    text.setAttribute('fill', evaluationColors[evaluation]); // テキストの色を黒に設定
+    text.textContent = evaluation; // 表示する文字
+
+    // SVGに円を追加
+    svg.appendChild(circle);
+    svg.appendChild(text);
+
+    return svg;
   };
 
   const finish = () => {
@@ -171,15 +195,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         scorePanel.style.fontFamily = 'inpin hongmengti';
         scorePanel.style.color = 'rgba(255,255,255,.9)';
         scorePanel.style.fontSize = '16px';
+        scorePanel.style.display = 'flex';
+        // scorePanel.style.alignItems = 'center';
+        scorePanel.style.lineHeight = '1.5em';
+
+        scorePanel.innerHTML = `Score&emsp;${totalScore}`;
 
         if (showEvaluation) {
+          // マージン入れると画像出力時につぶれるためスペースを入れる
+          scorePanel.innerHTML += '&emsp;';
           // ドライバの平均値で評価
           const avScore = Math.floor(totalScore / 6);
-          const evaluation = getEvaluationSpan(avScore);
-          scorePanel.innerHTML = `<span>Score</span><span style="margin-left: 1em">${totalScore}${evaluation}</span>`;
-        } else {
-          scorePanel.innerHTML = `<span>Score</span><span style="margin-left: 1em">${totalScore}</span>`;
+          const evaluation = evaluate(avScore);
+          const svg = createEvaluationNode(evaluation);
+          scorePanel.appendChild(svg);
         }
+
         // スコア表示を追加
         customPanel.appendChild(scorePanel);
       }
@@ -306,18 +337,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         e.style.fontSize = '16px';
 
         const elName = document.createElement('div');
+        elName.style.lineHeight = '1.5em';
         elName.innerText = 'Score';
         e.appendChild(elName);
 
         const elValue = document.createElement('div');
+        elValue.style.display = 'flex';
+        // elValue.style.alignItems = 'center';
+        elValue.style.lineHeight = '1.5em';
+        elValue.innerText = equipScore;
         if (showEvaluation) {
+          elValue.innerHTML += '&emsp;';
           // 評価を表示
-          const evaluation = getEvaluationSpan(equipScore);
-          const elEvaluation = document.createElement('span');
-          elEvaluation.innerHTML = evaluation;
-          elValue.innerHTML = `${equipScore}${evaluation}`;
-        } else {
-          elValue.innerText = equipScore;
+          const evaluation = evaluate(equipScore);
+          const svg = createEvaluationNode(evaluation);
+          elValue.appendChild(svg);
         }
         e.appendChild(elValue);
 
