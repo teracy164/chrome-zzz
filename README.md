@@ -32,7 +32,7 @@ https://chromewebstore.google.com/detail/zzz-score-calculator/ibbbkbnhocldehlkbe
 
 1. 「Code 　 ⇒ 　 Download ZIP」から当ツールをダウンロードします
 
-![ダウンロード](/docs/images/help1.jpg)
+![ダウンロード](/docs/images/help_β1.jpg)
 
 2．ダウンロードした ZIP ファイルを任意の場所で解凍します
 
@@ -41,8 +41,8 @@ https://chromewebstore.google.com/detail/zzz-score-calculator/ibbbkbnhocldehlkbe
 1. Google Chrome の「拡張機能を管理」を開きます
 2. 「パッケージ化されていない拡張機能を読み込む」を押下します
 
-![パッケージ化されていない拡張機能を読み込む](/docs/images/help2.jpg)
+![パッケージ化されていない拡張機能を読み込む](/docs/images/help_β2.jpg)
 
 3．解凍したフォルダを選択します
 
-![フォルダを選択](/docs/images/help3.jpg)
+![フォルダを選択](/docs/images/help_β3.jpg)

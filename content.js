@@ -139,15 +139,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   };
 
-  const evaluationColors = {
-    SS: 'yellow',
-    S: 'yellow',
-    A: 'crimson',
-    B: 'skyblue',
-    C: 'white',
-  };
-
-  const createEvaluationNode = (evaluation) => {
+  const createEvaluationSVG = (evaluation) => {
     // 文字列＋borderだと画像で出力した際に表示崩れするため、画像として埋め込めるようにDOM生成
 
     // SVGの名前空間を定義
@@ -155,27 +147,74 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // SVG要素を作成
     const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('width', '20'); // 幅を24pxに設定
-    svg.setAttribute('height', '20'); // 高さを24pxに設定
-    svg.setAttribute('viewBox', '0 0 20 20'); // 24x24のビュー領域
+    svg.setAttribute('width', '24'); // 幅を24pxに設定
+    svg.setAttribute('height', '24'); // 高さを24pxに設定
+    svg.setAttribute('viewBox', '0 0 24 24'); // 24x24のビュー領域
+
+    // SS・Sの場合は塗りつぶしで光沢感を出す
+    const isSpecial = ['SS', 'S'].includes(evaluation);
+    if (isSpecial) {
+      // <defs>を追加してグラデーション定義を入れる
+      const defs = document.createElementNS(svgNS, 'defs');
+
+      // リニアグラデーションを作成 (金色の光沢を表現)
+      const gradient = document.createElementNS(svgNS, 'linearGradient');
+      gradient.setAttribute('id', 'gold-gradient');
+      gradient.setAttribute('x1', '0%');
+      gradient.setAttribute('y1', '0%');
+      gradient.setAttribute('x2', '100%');
+      gradient.setAttribute('y2', '100%');
+
+      // グラデーションストップを追加
+      const stop1 = document.createElementNS(svgNS, 'stop');
+      stop1.setAttribute('offset', '0%');
+      stop1.setAttribute('stop-color', '#FFD700'); // 明るいゴールド
+
+      const stop2 = document.createElementNS(svgNS, 'stop');
+      stop2.setAttribute('offset', '50%');
+      stop2.setAttribute('stop-color', '#FFA500'); // オレンジがかったゴールド
+
+      const stop3 = document.createElementNS(svgNS, 'stop');
+      stop3.setAttribute('offset', '100%');
+      stop3.setAttribute('stop-color', '#FFD700'); // 再び明るいゴールド
+
+      // グラデーションにストップを追加
+      gradient.appendChild(stop1);
+      gradient.appendChild(stop2);
+      gradient.appendChild(stop3);
+
+      // defsにグラデーションを追加
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+    }
+
+    const color = { SS: 'red', S: 'black', A: 'crimson', B: 'skyblue', C: 'white' };
 
     // 円の要素を作成
     const circle = document.createElementNS(svgNS, 'circle');
-    circle.setAttribute('cx', '10'); // 円の中心X座標
-    circle.setAttribute('cy', '10'); // 円の中心Y座標
-    circle.setAttribute('r', '8'); // 半径9px（直径18px）
-    circle.setAttribute('fill', 'none'); // 内側を透明に
-    circle.setAttribute('stroke', evaluationColors[evaluation]); // 輪郭を青色に
-    circle.setAttribute('stroke-width', '2'); // 輪郭の幅を2pxに設定
+    circle.setAttribute('cx', '12'); // 円の中心X座標
+    circle.setAttribute('cy', '12'); // 円の中心Y座標
+    circle.setAttribute('r', '9'); // 半径9px（直径18px）
+    if (isSpecial) {
+      circle.setAttribute('fill', 'url(#gold-gradient)'); // グラデーションを適用
+    } else {
+      circle.setAttribute('fill', 'none'); // 内側を透明に
+      circle.setAttribute('stroke', color[evaluation]); // 輪郭を青色に
+      circle.setAttribute('stroke-width', '2'); // 輪郭の幅を2pxに設定
+    }
 
+    const positionX = { SS: '11.5', S: '12', A: '11.5', B: '12', C: '11.5' };
+    const positionY = { SS: '17', S: '18', A: '18', B: '18', C: '18' };
     // テキストの要素を作成
     const text = document.createElementNS(svgNS, 'text');
-    text.setAttribute('x', '9.5');
-    text.setAttribute('y', evaluation === 'SS' ? '14' : '15'); // Y座標は少し下に調整
+    text.setAttribute('x', positionX[evaluation]);
+    text.setAttribute('y', positionY[evaluation]); // Y座標は少し下に調整
     text.setAttribute('text-anchor', 'middle'); // テキストを中央揃え
-    text.setAttribute('font-size', evaluation === 'SS' ? '9' : '14'); // フォントサイズを12pxに設定
+    text.setAttribute('font-size', evaluation === 'SS' ? '14' : '16'); // フォントサイズを12pxに設定
+    // MEMO: imgタグで表示するとfont-familyが適用されなくなる
     text.setAttribute('font-family', 'inpin hongmengti');
-    text.setAttribute('fill', evaluationColors[evaluation]); // テキストの色を黒に設定
+    text.setAttribute('font-weight', 'bold');
+    text.setAttribute('fill', color[evaluation]); // テキストの色を評価ごとに設定
     text.textContent = evaluation; // 表示する文字
 
     // SVGに円を追加
@@ -183,6 +222,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     svg.appendChild(text);
 
     return svg;
+  };
+
+  const getEvaluationImg = (evaluation) => {
+    const svg = createEvaluationSVG(evaluation);
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svg);
+    const encodedSvg = encodeURIComponent(svgString);
+    const img = document.createElement('img');
+    img.src = `data:image/svg+xml;charset=utf-8,${encodedSvg}`;
+    return img;
   };
 
   const finish = () => {
@@ -194,10 +243,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const scorePanel = document.createElement('div');
         scorePanel.style.fontFamily = 'inpin hongmengti';
         scorePanel.style.color = 'rgba(255,255,255,.9)';
-        scorePanel.style.fontSize = '16px';
+        scorePanel.style.fontSize = '18px';
         scorePanel.style.display = 'flex';
-        // scorePanel.style.alignItems = 'center';
-        scorePanel.style.lineHeight = '1.5em';
 
         scorePanel.innerHTML = `Score&emsp;${totalScore}`;
 
@@ -207,8 +254,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           // ドライバの平均値で評価
           const avScore = Math.floor(totalScore / 6);
           const evaluation = evaluate(avScore);
-          const svg = createEvaluationNode(evaluation);
-          scorePanel.appendChild(svg);
+          const img = getEvaluationImg(evaluation);
+          scorePanel.appendChild(img);
         }
 
         // スコア表示を追加
@@ -334,26 +381,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         e.style.justifyContent = 'space-between';
         e.style.fontFamily = '"inpin hongmengti"';
         e.style.color = 'rgba(255, 255, 255, 0.9)';
-        e.style.fontSize = '16px';
+        e.style.fontSize = '18px';
 
-        const elName = document.createElement('div');
-        elName.style.lineHeight = '1.5em';
-        elName.innerText = 'Score';
-        e.appendChild(elName);
-
-        const elValue = document.createElement('div');
-        elValue.style.display = 'flex';
-        // elValue.style.alignItems = 'center';
-        elValue.style.lineHeight = '1.5em';
-        elValue.innerText = equipScore;
         if (showEvaluation) {
-          elValue.innerHTML += '&emsp;';
+          // 評価の画像が画像出力時にずれてしまうため、違和感を少しでも下げるために、
+          // スコア表示と離して表示
+          const eScore = document.createElement('div');
+          eScore.innerHTML = `Score&emsp;${equipScore}`;
+          e.appendChild(eScore);
           // 評価を表示
           const evaluation = evaluate(equipScore);
-          const svg = createEvaluationNode(evaluation);
-          elValue.appendChild(svg);
+          const img = getEvaluationImg(evaluation);
+          e.appendChild(img);
+        } else {
+          const eLabel = document.createElement('div');
+          eLabel.innerText = 'Score';
+          e.appendChild(eLabel);
+          const eScore = document.createElement('div');
+          eScore.innerText = equipScore;
+          e.appendChild(eScore);
         }
-        e.appendChild(elValue);
 
         statusPanel.appendChild(document.createElement('hr'));
         statusPanel.appendChild(e);
