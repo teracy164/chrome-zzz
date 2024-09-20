@@ -140,8 +140,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   };
 
   const evaluationColors = {
-    SS: 'yellow',
-    S: 'yellow',
+    SS: 'red',
+    S: 'black',
     A: 'crimson',
     B: 'skyblue',
     C: 'white',
@@ -155,27 +155,68 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // SVG要素を作成
     const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('width', '22'); // 幅を24pxに設定
-    svg.setAttribute('height', '22'); // 高さを24pxに設定
-    svg.setAttribute('viewBox', '0 0 22 22'); // 24x24のビュー領域
+    svg.setAttribute('width', '24'); // 幅を24pxに設定
+    svg.setAttribute('height', '24'); // 高さを24pxに設定
+    svg.setAttribute('viewBox', '0 0 24 24'); // 24x24のビュー領域
+
+    // SS・Sの場合は塗りつぶしで光沢感を出す
+    const isSpecial = ['SS', 'S'].includes(evaluation);
+    if (isSpecial) {
+      // <defs>を追加してグラデーション定義を入れる
+      const defs = document.createElementNS(svgNS, 'defs');
+
+      // リニアグラデーションを作成 (金色の光沢を表現)
+      const gradient = document.createElementNS(svgNS, 'linearGradient');
+      gradient.setAttribute('id', 'gold-gradient');
+      gradient.setAttribute('x1', '0%');
+      gradient.setAttribute('y1', '0%');
+      gradient.setAttribute('x2', '100%');
+      gradient.setAttribute('y2', '100%');
+
+      // グラデーションストップを追加
+      const stop1 = document.createElementNS(svgNS, 'stop');
+      stop1.setAttribute('offset', '0%');
+      stop1.setAttribute('stop-color', '#FFD700'); // 明るいゴールド
+
+      const stop2 = document.createElementNS(svgNS, 'stop');
+      stop2.setAttribute('offset', '50%');
+      stop2.setAttribute('stop-color', '#FFA500'); // オレンジがかったゴールド
+
+      const stop3 = document.createElementNS(svgNS, 'stop');
+      stop3.setAttribute('offset', '100%');
+      stop3.setAttribute('stop-color', '#FFD700'); // 再び明るいゴールド
+
+      // グラデーションにストップを追加
+      gradient.appendChild(stop1);
+      gradient.appendChild(stop2);
+      gradient.appendChild(stop3);
+
+      // defsにグラデーションを追加
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+    }
 
     // 円の要素を作成
     const circle = document.createElementNS(svgNS, 'circle');
-    circle.setAttribute('cx', '11'); // 円の中心X座標
-    circle.setAttribute('cy', '11'); // 円の中心Y座標
-    circle.setAttribute('r', '8'); // 半径9px（直径18px）
-    circle.setAttribute('fill', 'none'); // 内側を透明に
-    circle.setAttribute('stroke', evaluationColors[evaluation]); // 輪郭を青色に
-    circle.setAttribute('stroke-width', '2'); // 輪郭の幅を2pxに設定
+    circle.setAttribute('cx', '12'); // 円の中心X座標
+    circle.setAttribute('cy', '12'); // 円の中心Y座標
+    circle.setAttribute('r', '9'); // 半径9px（直径18px）
+    if (isSpecial) {
+      circle.setAttribute('fill', 'url(#gold-gradient)'); // グラデーションを適用
+    } else {
+      circle.setAttribute('fill', 'none'); // 内側を透明に
+      circle.setAttribute('stroke', evaluationColors[evaluation]); // 輪郭を青色に
+      circle.setAttribute('stroke-width', '2'); // 輪郭の幅を2pxに設定
+    }
 
     // テキストの要素を作成
     const text = document.createElementNS(svgNS, 'text');
-    text.setAttribute('x', '10.5');
-    text.setAttribute('y', evaluation === 'SS' ? '14.5' : '16'); // Y座標は少し下に調整
+    text.setAttribute('x', '11.5');
+    text.setAttribute('y', evaluation === 'SS' ? '18' : '18.5'); // Y座標は少し下に調整
     text.setAttribute('text-anchor', 'middle'); // テキストを中央揃え
-    text.setAttribute('font-size', evaluation === 'SS' ? '10' : '14'); // フォントサイズを12pxに設定
+    text.setAttribute('font-size', evaluation === 'SS' ? '14' : '16'); // フォントサイズを12pxに設定
     text.setAttribute('font-family', 'inpin hongmengti');
-    text.setAttribute('fill', evaluationColors[evaluation]); // テキストの色を黒に設定
+    text.setAttribute('fill', evaluationColors[evaluation]); // テキストの色を評価ごとに設定
     text.textContent = evaluation; // 表示する文字
 
     // SVGに円を追加
@@ -194,7 +235,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const scorePanel = document.createElement('div');
         scorePanel.style.fontFamily = 'inpin hongmengti';
         scorePanel.style.color = 'rgba(255,255,255,.9)';
-        scorePanel.style.fontSize = '16px';
+        scorePanel.style.fontSize = '18px';
         scorePanel.style.display = 'flex';
         // scorePanel.style.alignItems = 'center';
         scorePanel.style.lineHeight = '1.5em';
@@ -334,7 +375,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         e.style.justifyContent = 'space-between';
         e.style.fontFamily = '"inpin hongmengti"';
         e.style.color = 'rgba(255, 255, 255, 0.9)';
-        e.style.fontSize = '16px';
+        e.style.fontSize = '18px';
 
         const elName = document.createElement('div');
         elName.style.lineHeight = '1.5em';
