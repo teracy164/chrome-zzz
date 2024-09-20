@@ -155,14 +155,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // SVG要素を作成
     const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('width', '20'); // 幅を24pxに設定
-    svg.setAttribute('height', '20'); // 高さを24pxに設定
-    svg.setAttribute('viewBox', '0 0 20 20'); // 24x24のビュー領域
+    svg.setAttribute('width', '22'); // 幅を24pxに設定
+    svg.setAttribute('height', '22'); // 高さを24pxに設定
+    svg.setAttribute('viewBox', '0 0 22 22'); // 24x24のビュー領域
 
     // 円の要素を作成
     const circle = document.createElementNS(svgNS, 'circle');
-    circle.setAttribute('cx', '10'); // 円の中心X座標
-    circle.setAttribute('cy', '10'); // 円の中心Y座標
+    circle.setAttribute('cx', '11'); // 円の中心X座標
+    circle.setAttribute('cy', '11'); // 円の中心Y座標
     circle.setAttribute('r', '8'); // 半径9px（直径18px）
     circle.setAttribute('fill', 'none'); // 内側を透明に
     circle.setAttribute('stroke', evaluationColors[evaluation]); // 輪郭を青色に
@@ -170,10 +170,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // テキストの要素を作成
     const text = document.createElementNS(svgNS, 'text');
-    text.setAttribute('x', '9.5');
-    text.setAttribute('y', evaluation === 'SS' ? '14' : '15'); // Y座標は少し下に調整
+    text.setAttribute('x', '10.5');
+    text.setAttribute('y', evaluation === 'SS' ? '14.5' : '16'); // Y座標は少し下に調整
     text.setAttribute('text-anchor', 'middle'); // テキストを中央揃え
-    text.setAttribute('font-size', evaluation === 'SS' ? '9' : '14'); // フォントサイズを12pxに設定
+    text.setAttribute('font-size', evaluation === 'SS' ? '10' : '14'); // フォントサイズを12pxに設定
     text.setAttribute('font-family', 'inpin hongmengti');
     text.setAttribute('fill', evaluationColors[evaluation]); // テキストの色を黒に設定
     text.textContent = evaluation; // 表示する文字
