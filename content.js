@@ -194,7 +194,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const circle = document.createElementNS(svgNS, 'circle');
     circle.setAttribute('cx', '12'); // 円の中心X座標
     circle.setAttribute('cy', '12'); // 円の中心Y座標
-    circle.setAttribute('r', '9'); // 半径9px（直径18px）
+    circle.setAttribute('r', '11'); // 半径
     if (isSpecial) {
       circle.setAttribute('fill', 'url(#gold-gradient)'); // グラデーションを適用
     } else {
@@ -210,7 +210,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     text.setAttribute('x', positionX[evaluation]);
     text.setAttribute('y', positionY[evaluation]); // Y座標は少し下に調整
     text.setAttribute('text-anchor', 'middle'); // テキストを中央揃え
-    text.setAttribute('font-size', evaluation === 'SS' ? '14' : '16'); // フォントサイズを12pxに設定
+    text.setAttribute('font-size', evaluation === 'SS' ? '14' : '18'); // フォントサイズを12pxに設定
     // MEMO: imgタグで表示するとfont-familyが適用されなくなる
     text.setAttribute('font-family', 'inpin hongmengti');
     text.setAttribute('font-weight', 'bold');
@@ -241,22 +241,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (showScore) {
         // スコア表示
         const scorePanel = document.createElement('div');
-        scorePanel.style.fontFamily = 'inpin hongmengti';
-        scorePanel.style.color = 'rgba(255,255,255,.9)';
-        scorePanel.style.fontSize = '18px';
         scorePanel.style.display = 'flex';
+        scorePanel.style.marginBottom = '0.5em';
+        const eScore = document.createElement('span');
+        eScore.style.fontFamily = 'inpin hongmengti';
+        eScore.style.color = 'rgba(255,255,255,.9)';
+        eScore.style.fontSize = '6mm';
+        eScore.style.position = 'relative';
+        eScore.style.lineHeight = '6mm';
 
-        scorePanel.innerHTML = `Score&emsp;${totalScore}`;
+        eScore.innerHTML = `Score&emsp;${totalScore}`;
 
         if (showEvaluation) {
-          // マージン入れると画像出力時につぶれるためスペースを入れる
-          scorePanel.innerHTML += '&emsp;';
           // ドライバの平均値で評価
           const avScore = Math.floor(totalScore / 6);
           const evaluation = evaluate(avScore);
           const img = getEvaluationImg(evaluation);
-          scorePanel.appendChild(img);
+          img.style.width = '8mm';
+          // paddingやmarginで位置を調整すると画像出力時に崩れるため、absoluteで直接指定する
+          img.style.position = 'absolute';
+          img.style.bottom = '0';
+          img.style.left = 'calc(100% + 5mm)';
+          eScore.appendChild(img);
         }
+        scorePanel.appendChild(eScore);
 
         // スコア表示を追加
         customPanel.appendChild(scorePanel);
@@ -342,7 +350,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     };
 
     const statusPanel = document.createElement('div');
-    statusPanel.style.padding = '0.5em';
+    statusPanel.style.paddingTop = '0.5em';
 
     // メインステータスのDOMを取得
     const mainSts = modal.getElementsByClassName('base-attrs')?.item(0);
@@ -376,34 +384,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
 
       if (showScore) {
-        const e = document.createElement('div');
-        e.style.display = 'flex';
-        e.style.justifyContent = 'space-between';
-        e.style.fontFamily = '"inpin hongmengti"';
-        e.style.color = 'rgba(255, 255, 255, 0.9)';
-        e.style.fontSize = '18px';
+        statusPanel.appendChild(document.createElement('hr'));
+
+        const fontSize = '5mm';
 
         if (showEvaluation) {
+          statusPanel.style.paddingBottom = '6.5mm';
+          statusPanel.style.position = 'relative';
           // 評価の画像が画像出力時にずれてしまうため、違和感を少しでも下げるために、
           // スコア表示と離して表示
           const eScore = document.createElement('div');
           eScore.innerHTML = `Score&emsp;${equipScore}`;
-          e.appendChild(eScore);
+          eScore.style.fontFamily = '"inpin hongmengti"';
+          eScore.style.color = 'rgba(255, 255, 255, 0.9)';
+          eScore.style.fontSize = fontSize;
+          eScore.style.position = 'absolute';
+          eScore.style.bottom = '0';
+          eScore.style.lineHeight = fontSize;
+          statusPanel.appendChild(eScore);
           // 評価を表示
           const evaluation = evaluate(equipScore);
           const img = getEvaluationImg(evaluation);
-          e.appendChild(img);
+          img.style.position = 'absolute';
+          img.style.bottom = '0';
+          img.style.right = '0';
+          img.style.width = '6mm';
+          statusPanel.appendChild(img);
         } else {
+          const e = document.createElement('div');
+          e.style.display = 'flex';
+          e.style.justifyContent = 'space-between';
+          e.style.fontFamily = '"inpin hongmengti"';
+          e.style.color = 'rgba(255, 255, 255, 0.9)';
+          e.style.fontSize = fontSize;
+          e.style.lineHeight = `calc(${fontSize} + 2mm)`;
+
           const eLabel = document.createElement('div');
           eLabel.innerText = 'Score';
           e.appendChild(eLabel);
           const eScore = document.createElement('div');
           eScore.innerText = equipScore;
           e.appendChild(eScore);
-        }
 
-        statusPanel.appendChild(document.createElement('hr'));
-        statusPanel.appendChild(e);
+          statusPanel.appendChild(e);
+        }
       }
 
       totalScore = addScore(totalScore, equipScore);
