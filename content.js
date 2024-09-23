@@ -141,7 +141,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   const createEvaluationSVG = (evaluation) => {
     // 文字列＋borderだと画像で出力した際に表示崩れするため、画像として埋め込めるようにDOM生成
-    if (evaluation === 'C') evaluation = 'SS';
+
     // SVGの名前空間を定義
     const svgNS = 'http://www.w3.org/2000/svg';
 
