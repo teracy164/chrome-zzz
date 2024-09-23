@@ -154,6 +154,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // SS・Sの場合は塗りつぶしで光沢感を出す
     const isSpecial = ['SS', 'S'].includes(evaluation);
     if (isSpecial) {
+      const color1 = { SS: '#FFAAAA', S: '#FFFFFF' };
+      const color2 = { SS: '#CC0000', S: '#FFA500' };
       // <defs>を追加してグラデーション定義を入れる
       const defs = document.createElementNS(svgNS, 'defs');
 
@@ -168,15 +170,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // グラデーションストップを追加
       const stop1 = document.createElementNS(svgNS, 'stop');
       stop1.setAttribute('offset', '0%');
-      stop1.setAttribute('stop-color', '#FFD700'); // 明るいゴールド
+      stop1.setAttribute('stop-color', color1[evaluation]);
 
       const stop2 = document.createElementNS(svgNS, 'stop');
       stop2.setAttribute('offset', '50%');
-      stop2.setAttribute('stop-color', '#FFA500'); // オレンジがかったゴールド
+      stop2.setAttribute('stop-color', color2[evaluation]); // 中央を暗めにすることで光沢を表現
 
       const stop3 = document.createElementNS(svgNS, 'stop');
       stop3.setAttribute('offset', '100%');
-      stop3.setAttribute('stop-color', '#FFD700'); // 再び明るいゴールド
+      stop3.setAttribute('stop-color', color1[evaluation]);
 
       // グラデーションにストップを追加
       gradient.appendChild(stop1);
@@ -188,7 +190,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       svg.appendChild(defs);
     }
 
-    const color = { SS: 'red', S: 'black', A: 'crimson', B: 'skyblue', C: 'white' };
+    const color = { SS: 'white', S: 'black', A: 'crimson', B: 'skyblue', C: 'white' };
 
     // 円の要素を作成
     const circle = document.createElementNS(svgNS, 'circle');
@@ -210,7 +212,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     text.setAttribute('x', positionX[evaluation]);
     text.setAttribute('y', positionY[evaluation]); // Y座標は少し下に調整
     text.setAttribute('text-anchor', 'middle'); // テキストを中央揃え
-    text.setAttribute('font-size', evaluation === 'SS' ? '14' : '18'); // フォントサイズを12pxに設定
+    text.setAttribute('font-size', evaluation === 'SS' ? '13' : '18'); // フォントサイズを12pxに設定
     // MEMO: imgタグで表示するとfont-familyが適用されなくなる
     text.setAttribute('font-family', 'inpin hongmengti');
     text.setAttribute('font-weight', 'bold');
