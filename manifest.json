@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ZZZ Score Calculator",
-  "version": "1.1.13",
+  "version": "1.1.14",
   "description": "ゼンレスゾーンゼロ向けのスコア計算ツールです。",
   "content_scripts": [
     {
