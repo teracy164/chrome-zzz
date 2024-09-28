@@ -301,9 +301,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // ちらつかないようにモーダルは透明にしておく
     modal.style.opacity = '0';
 
+    // ドライバごとの表示枠
+    // 発動中のセット効果枠に合わせた見た目にする
     const equipDetail = document.createElement('div');
     equipDetail.style.backgroundColor = '#242424';
-    equipDetail.style.boxShadow = '-1px -1px 1.1px 0px rgba(255,255,255,.1),0px 4px 4px 0px rgba(0,0,0,.1) inset';
+    // 発動中のセット効果枠はboxShadowで枠線に色を付けているが、画像出力時におかしくなるため、borderColorで同じような見た目にする
+    // equipDetail.style.boxShadow = '-1px -1px 1.1px 0px rgba(255,255,255,.1),0px 4px 4px 0px rgba(0,0,0,.1) inset';
+    equipDetail.style.borderLeft = '1px solid rgba(255,255,255,.1)';
+    equipDetail.style.borderTop = '1px solid rgba(255,255,255,.1)';
     equipDetail.style.borderRadius = '16px';
     equipDetail.style.width = `calc(${isMobile ? '100%' : '33%'} - 0.5em)`;
     equipDetail.style.padding = '12px 24px';
