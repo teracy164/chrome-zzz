@@ -240,9 +240,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // 公式の装備の枠に詳細情報を埋め込む
     const officialEquipPanel = document.getElementsByClassName('equipment-info')?.item(0);
     if (officialEquipPanel) {
+      // 宣伝用パネル
+      const pr = document.createElement('div');
+      pr.style.position = 'relative';
+      pr.style.paddingRight = '1.6cm';
+      pr.style.lineHeight = '1em';
+      pr.innerHTML = 'Created by<br>ZZZ Score Calculator';
+      // Chrome拡張へのQRコード
+      const qrImageUrl = chrome.runtime.getURL('public/images/qr_code.png');
+      const qr = document.createElement('img');
+      qr.src = qrImageUrl;
+      qr.style.position = 'absolute';
+      qr.style.right = '0';
+      qr.style.bottom = '0';
+      qr.style.width = '1.5cm';
+      qr.style.height = '1.5cm';
+      // 画像の読み込み失敗時はimgタグを消す
+      qr.onerror = () => {
+        pr.style.paddingRight = '0';
+        qr.remove();
+      };
+      pr.appendChild(qr);
+
       if (showScore) {
         // スコア表示
         const scorePanel = document.createElement('div');
+        scorePanel.style.position = 'relative';
         scorePanel.style.display = 'flex';
         scorePanel.style.marginBottom = '0.5em';
         const eScore = document.createElement('span');
@@ -268,8 +291,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         scorePanel.appendChild(eScore);
 
+        pr.style.position = 'absolute';
+        pr.style.right = '0';
+        pr.style.bottom = '0';
+        scorePanel.appendChild(pr);
+
         // スコア表示を追加
         customPanel.appendChild(scorePanel);
+      } else {
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'flex-end';
+        header.appendChild(pr);
+        customPanel.appendChild(header);
       }
       // ドライバ詳細を追加
       customPanel.appendChild(customEquipPanel);
@@ -324,6 +358,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const driverName = baseInfo.getElementsByTagName('p')?.item(0);
         if (driverName) {
           driverName.style.height = 'unset';
+          driverName.style.fontFamily = 'inpin hongmengti';
         }
 
         // 公式のCSSを効かせるために「popup-content」クラスを付けたdivでラッピングする
