@@ -358,6 +358,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const driverName = baseInfo.getElementsByTagName('p')?.item(0);
         if (driverName) {
           driverName.style.height = 'unset';
+          driverName.style.fontFamily = 'inpin hongmengti';
         }
 
         // 公式のCSSを効かせるために「popup-content」クラスを付けたdivでラッピングする
