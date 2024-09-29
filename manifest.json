@@ -1,12 +1,16 @@
 {
   "manifest_version": 3,
   "name": "ZZZ Score Calculator",
-  "version": "1.1.14",
+  "version": "1.1.15",
   "description": "ゼンレスゾーンゼロ向けのスコア計算ツールです。",
   "content_scripts": [
     {
-      "matches": ["https://act.hoyolab.com/*/*.html*"],
-      "js": ["content.js"]
+      "matches": [
+        "https://act.hoyolab.com/*/*.html*"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "action": {
@@ -14,8 +18,12 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["public/images/*.png"],
-      "matches": ["https://act.hoyolab.com/*"]
+      "resources": [
+        "public/images/*.png"
+      ],
+      "matches": [
+        "https://act.hoyolab.com/*"
+      ]
     }
   ]
 }
