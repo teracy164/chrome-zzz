@@ -120,6 +120,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           score = Math.floor((toNum(value) * 10) / 3) / 10;
         }
         break;
+      case 'HP':
+      case 'LP':
+      case 'PV':
+      case '生命值':
+        if (calcType === 'hp') {
+          if (value.endsWith('%')) {
+            // HP実数もあるため、％の場合のみ加算
+            score = toNum(value);
+          }
+        }
+        break;
     }
 
     return score;

@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
       elDescription.innerHTML = '&lt;スコア計算式&gt;<br>(会心率 x 2) + 会心ダメージ + (異常マスタリー ÷ 3) ';
     } else if (elCalcType.value === 'attack') {
       elDescription.innerHTML = '&lt;スコア計算式&gt;<br>(会心率 x 2) + 会心ダメージ + 攻撃力% ';
+    } else if (elCalcType.value === 'hp') {
+      elDescription.innerHTML = '&lt;スコア計算式&gt;<br>(会心率 x 2) + 会心ダメージ + HP% ';
     } else {
       elDescription.innerHTML = '';
     }
