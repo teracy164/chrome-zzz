@@ -13,4 +13,4 @@ HoYoLab の戦績ツールで実行し、ドライバの詳細情報やスコア
 現在 Chrome Web ストアで正式版を公開中です！  
 以下のサイトで使い方など詳細を紹介しているので、そちらをご覧ください
 
-https://zzz.teracy.link/build
+https://games.teracy.link/zzz/build
