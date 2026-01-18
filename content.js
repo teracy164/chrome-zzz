@@ -122,6 +122,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         break;
       case 'HP':
       case 'LP':
+      case 'PV':
       case '生命值':
         if (calcType === 'hp') {
           if (value.endsWith('%')) {
